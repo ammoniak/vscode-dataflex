@@ -1,0 +1,50 @@
+// DfProfileWrite.pkg - dumps what DfProfile.pkg collected.
+//
+// Split out from DfProfile.pkg for the same reason DfCoverageWrite.pkg is split from
+// DfCoverage.pkg: this half needs the sequential-file runtime (`Seq_New_Channel`), which does not
+// exist at the top of a `.src` where the counter half has to go.
+//
+// Tab-separated `id<TAB>calls<TAB>exits<TAB>milliseconds`, for the same reason as the coverage
+// report: there is nothing to escape, so no value can produce a file the reader chokes on.
+//
+// `exits` is written even though a balanced run makes it equal to `calls`. Where they differ, the
+// method was left by a path with no exit probe and its time is understated -- the reader needs to
+// be able to say so rather than present a wrong number as a fact.
+
+/// Writes one line per method that was entered at least once.
+Procedure DfProfWrite Global String sFileName
+    Integer iChannel
+    Integer iProbe
+    Integer iMax
+    Integer iCalls
+    Integer iExits
+    Number nTotal
+    Boolean bExists
+
+    File_Exist sFileName bExists
+    If bExists Begin
+        EraseFile sFileName
+    End
+
+    Move (Seq_New_Channel()) to iChannel
+    Direct_Output channel iChannel ("BINARY: " + sFileName)
+
+        Move (SizeOfArray(gaiDfProfCalls) - 1) to iMax
+        For iProbe from 0 to iMax
+            Move gaiDfProfCalls[iProbe] to iCalls
+            If (iCalls > 0) Begin
+                Move 0 to iExits
+                If (iProbe < SizeOfArray(gaiDfProfExits)) Begin
+                    Move gaiDfProfExits[iProbe] to iExits
+                End
+                Move 0 to nTotal
+                If (iProbe < SizeOfArray(ganDfProfTotal)) Begin
+                    Move ganDfProfTotal[iProbe] to nTotal
+                End
+                Writeln channel iChannel (String(iProbe)) (Character(9)) (String(iCalls)) (Character(9)) (String(iExits)) (Character(9)) (String(nTotal))
+            End
+        Loop
+
+    Close_Output channel iChannel
+    Send Seq_Release_Channel iChannel
+End_Procedure

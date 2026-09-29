@@ -1,0 +1,17 @@
+{
+  "name": "@vscode-dataflex/coverage",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Source instrumentation and coverage reporting for DataFlex",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@vscode-dataflex/parser": "*",
+    "@vscode-dataflex/workspace": "*"
+  }
+}

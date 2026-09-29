@@ -1,0 +1,477 @@
+{
+  "name": "vscode-dataflex",
+  "displayName": "DataFlex",
+  "description": "DataFlex language support: syntax highlighting, outline, build and run.",
+  "version": "0.1.37",
+  "publisher": "vscode-dataflex",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/*.sws",
+    "onDebugResolve:dataflex",
+    "onDebugInitialConfigurations",
+    "onDebugDynamicConfigurations:dataflex"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "dataflex",
+        "aliases": [
+          "DataFlex",
+          "dataflex",
+          "VDF"
+        ],
+        "extensions": [
+          ".src",
+          ".pkg",
+          ".dd",
+          ".wo",
+          ".vw",
+          ".rv",
+          ".sl",
+          ".dg",
+          ".mod",
+          ".cls",
+          ".bpo",
+          ".rpt",
+          ".mnu",
+          ".prg",
+          ".mac",
+          ".fmac",
+          ".srv",
+          ".ds",
+          ".pkd"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "dataflex",
+        "scopeName": "source.dataflex",
+        "path": "./syntaxes/dataflex.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "dataflex.build",
+        "title": "Build Workspace",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.rebuild",
+        "title": "Rebuild Workspace (force)",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.run",
+        "title": "Run Project",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.selectProject",
+        "title": "Select Project",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.showWorkspaceConfiguration",
+        "title": "Show Workspace Configuration",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.reloadWorkspace",
+        "title": "Reload Workspace",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.debugInStudio",
+        "title": "Debug in DataFlex Studio",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.attach",
+        "title": "Attach to a Running Program",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.refreshTests",
+        "title": "Refresh Tests",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.analyzeWorkspace",
+        "title": "Analyze Workspace",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.clearAnalysisResults",
+        "title": "Clear Analysis Results",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.profile",
+        "title": "Profile Project",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.showLastProfile",
+        "title": "Show Last Profile",
+        "category": "DataFlex"
+      },
+      {
+        "command": "dataflex.previewWebView",
+        "title": "Preview Web View",
+        "category": "DataFlex",
+        "icon": "$(preview)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "dataflex.previewWebView",
+          "when": "resourceExtname == .wo",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "dataflex.build",
+        "key": "ctrl+shift+b",
+        "when": "editorTextFocus && editorLangId == dataflex"
+      }
+    ],
+    "configuration": {
+      "title": "DataFlex",
+      "properties": {
+        "dataflex.cliPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to `df-cli.exe`. Leave empty to discover it from `PATH`, the registry, then the conventional `Program Files\\DataFlex <version>` layout."
+        },
+        "dataflex.workspaceFile": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the `.sws` workspace file to use, relative to the folder root. Leave empty to detect it automatically; you will be prompted if a folder contains more than one."
+        },
+        "dataflex.build.restartWebApp": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Pass `--restart-webapp` when building, stopping the matching WebApp Server application first and restarting it afterwards."
+        },
+        "dataflex.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Trace communication with the DataFlex language server."
+        },
+        "dataflex.test.timeoutSeconds": {
+          "type": "number",
+          "default": 300,
+          "markdownDescription": "How long to wait for a DFUnit test executable before terminating it. A program that opens a modal error dialog would otherwise never return."
+        },
+        "dataflex.docs.baseUrl": {
+          "type": "string",
+          "default": "https://docs.dataflex.dev",
+          "markdownDescription": "Base URL used for the documentation link in hovers. **Clear it to turn the links off.** Links are only ever produced for classes from the DataFlex runtime library and its packages -- your own classes are not in the documentation, so linking them would give a dead link. No network request is made: the URL is constructed from the class name and the package the class was declared in."
+        },
+        "dataflex.inlayHints.parameterNames": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Show parameter names before the arguments of a `Send` or `Get`. DataFlex passes positionally with no punctuation, so a call like `Send PopupLookup Self \"\" \"\" \"\"` says nothing about what its arguments are. Off by default because hints are drawn inside the code; a name is only shown when every matching declaration agrees on it."
+        },
+        "dataflex.inlayHints.suppressWhenArgumentMatchesName": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Hide a parameter hint when the argument already carries the parameter's name, so `sCustomerAccount: sCustomerAccount` is not drawn. Leaves calls where only some arguments differ showing only some hints, which can look as though the rest failed — turn this off to label every argument."
+        },
+        "dataflex.hover.tableFields": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "List a table's columns when hovering its name, instead of only counting them. Off by default because a table hover fires on every `Open` and every DDO line, and a wide table would fill the screen; the column list is read from the workspace's `.fd` files, so it costs nothing to turn on."
+        },
+        "dataflex.analysis.unused-local": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report local variables that are never read."
+        },
+        "dataflex.analysis.unreachable-code": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report statements that follow an unconditional `Procedure_Return` / `Function_Return`."
+        },
+        "dataflex.analysis.duplicate-declaration": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report a local name declared twice in the same scope."
+        },
+        "dataflex.analysis.unused-parameter": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report parameters that are never read. Overrides of a parent class member and empty event stubs are excluded, since accepting arguments you do not use is unavoidable there; what remains is hand-written code that genuinely ignores one."
+        },
+        "dataflex.analysis.severity": {
+          "type": "string",
+          "enum": [
+            "hint",
+            "information",
+            "warning"
+          ],
+          "default": "hint",
+          "markdownDescription": "Severity for inline analysis findings. `hint` greys the code out but is **not listed in the Problems panel** (VS Code shows hints in the editor only). Raise it to `information` or `warning` to have findings listed. *DataFlex: Analyze Workspace* always lists its results regardless of this setting. A few rules carry a higher built-in default and ignore this -- `implicit-global` always reports as a warning unless `#dataflex.analysis.severityOverrides#` says otherwise."
+        },
+        "dataflex.analysis.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Globs excluded from *DataFlex: Analyze Workspace*, e.g. `**/ChilkatAx*.pkg` for generated vendor wrappers. Empty by default so nothing is hidden silently; the report states how many files were skipped. To disable analysis from inside a file instead, put `// df-analysis-ignore` (or `// df-analysis-ignore: unused-local, dead-procedure`) anywhere in it."
+        },
+        "dataflex.analysis.severityOverrides": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "hint",
+              "information",
+              "warning"
+            ]
+          },
+          "markdownDescription": "Severity for individual rules, overriding `#dataflex.analysis.severity#`. Useful when one rule is legitimately noisy: `{ \"unused-local\": \"hint\" }` keeps it greyed out in the editor while everything else is listed in the Problems panel."
+        },
+        "dataflex.analysis.dead-procedure": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Report procedures and functions that nothing appears to call. **Workspace-only** -- it needs the whole index, so it is reported by *DataFlex: Analyze Workspace*, never live while typing. Off by default: DataFlex dispatches dynamically, so judge the false-positive rate on your own code before trusting it. Overrides of a parent class member, published methods, and any name appearing in a string literal are all treated as reachable."
+        },
+        "dataflex.analysis.argument-count": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report calls that pass the wrong number of arguments. **Workspace-only** -- it needs the whole index, so it is reported by *DataFlex: Analyze Workspace*, never live while typing. Reported at **warning** severity. DataFlex compiles a call with too few arguments and simply leaves them unset, so this catches a class of bug the compiler does not. It stays silent unless it is certain: the name must be declared in your own source, every declaration of it must agree on how many parameters it takes, and none may read `num_arguments` -- which is how DataFlex writes an optional parameter."
+        },
+        "dataflex.coverage.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Globs left out of *Run with Coverage*. Only source reachable from the test program is instrumented in the first place, so this is for narrowing further -- `**/Tests/**` keeps the test code itself out of the percentage, since tests always run and otherwise flatter the figure. Empty by default so nothing is hidden silently; the run reports how many files were skipped."
+        },
+        "dataflex.analysis.implicit-global": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Report a variable declared outside any procedure or function -- typically inside an `Object ... End_Object` body, where it looks like per-object state but is actually one program-wide global shared by every object. Reported at **warning** severity regardless of `#dataflex.analysis.severity#`, because it is a correctness hazard rather than untidiness; lower it with `#dataflex.analysis.severityOverrides#` if you disagree. The fix is a `Property` for object state, or `Global_Variable` to declare a global deliberately."
+        },
+        "dataflex.preview.theme": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Theme *DataFlex: Preview Web View* draws with, e.g. `Df_Material`. Must be one of the folders in the workspace's `AppHtml\\CssThemes`. Leave empty to use `Df_Flat_Desktop` where the workspace ships it, and whatever it does ship otherwise."
+        },
+        "dataflex.debuggerProgId": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "COM ProgID of the DataFlex debugger engine, e.g. `VDFDebugger.DebuggerEngine.26.0`. Leave empty to use the newest installed version. Present only in the debug build (`npm run package:debug`); see `docs/DEBUGGING.md`."
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "dataflex",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "enum": [
+              "build",
+              "rebuild",
+              "run"
+            ],
+            "description": "The df-cli operation to perform."
+          },
+          "project": {
+            "type": "string",
+            "description": "Project (.src) within the workspace. Defaults to the selected project."
+          }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "dataflex",
+        "owner": "dataflex",
+        "source": "DataFlex",
+        "fileLocation": [
+          "autoDetect",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^\\s*(?:Error|Warning)\\s+(\\d+)?\\s*(?:on line\\s+(\\d+)\\s+of\\s+(.+?))?:?\\s*(.*)$",
+            "code": 1,
+            "line": 2,
+            "file": 3,
+            "message": 4
+          }
+        ]
+      }
+    ],
+    "configurationDefaults": {
+      "[dataflex]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+      }
+    },
+    "breakpoints": [
+      {
+        "language": "dataflex"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "dataflex",
+        "label": "DataFlex",
+        "languages": [
+          "dataflex"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "The compiled program to debug. Defaults to the selected project's executable in the workspace's Programs directory."
+              },
+              "project": {
+                "type": "string",
+                "description": "Project to debug, when the workspace has more than one. Defaults to the one selected in the status bar."
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Working directory. Defaults to the directory holding the .sws."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Break before the program starts running.",
+                "default": false
+              },
+              "webApp": {
+                "type": "boolean",
+                "description": "Debug as a web application. NOT WORKING YET: the engine still launches the program standalone, which stops on a modal dialog. See docs/DEBUGGING.md.",
+                "default": false
+              },
+              "url": {
+                "type": "string",
+                "description": "URL to open when webApp is set."
+              },
+              "acceptNewWebAppSessions": {
+                "type": "boolean",
+                "description": "Let an incoming web app session take over the session being debugged. Off by default, so a second browser tab cannot silently steal the session you are standing in.",
+                "default": false
+              },
+              "noDebugHeap": {
+                "type": "boolean",
+                "description": "Start the program without the debug heap.",
+                "default": false
+              }
+            }
+          },
+          "attach": {
+            "required": [
+              "processId"
+            ],
+            "properties": {
+              "processId": {
+                "type": "number",
+                "description": "Process id of a running DataFlex program built with debug information."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "dataflex",
+            "request": "launch",
+            "name": "DataFlex: Debug Project",
+            "stopOnEntry": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "DataFlex: Debug Project",
+            "description": "Build and debug the selected project",
+            "body": {
+              "type": "dataflex",
+              "request": "launch",
+              "name": "DataFlex: Debug Project",
+              "stopOnEntry": false
+            }
+          },
+          {
+            "label": "DataFlex: Debug Web Application (not working yet)",
+            "description": "Not functional: the engine launches the program standalone. See docs/DEBUGGING.md.",
+            "body": {
+              "type": "dataflex",
+              "request": "launch",
+              "name": "DataFlex: Debug Web Application",
+              "webApp": true,
+              "url": "^\"http://localhost/${1:MyWebApp}\""
+            }
+          },
+          {
+            "label": "DataFlex: Attach",
+            "description": "Attach to a running DataFlex program",
+            "body": {
+              "type": "dataflex",
+              "request": "attach",
+              "name": "DataFlex: Attach",
+              "processId": "^\"\\${command:PickProcess}\""
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "build:release": "node esbuild.mjs --no-debugger",
+    "watch": "node esbuild.mjs --watch",
+    "package": "node ../../scripts/package-extension.mjs",
+    "package:debug": "node ../../scripts/package-extension.mjs --debug",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build:test": "node esbuild.test.mjs",
+    "test:integration": "npm run build && npm run build:test && vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.2",
+    "mocha": "^11.8.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  },
+  "dependencies": {
+    "@vscode-dataflex/parser": "*",
+    "@vscode-dataflex/workspace": "*",
+    "@vscode-dataflex/langserver": "*",
+    "vscode-languageclient": "^9.0.1",
+    "@vscode-dataflex/coverage": "*",
+    "@vscode-dataflex/debug": "*"
+  }
+}

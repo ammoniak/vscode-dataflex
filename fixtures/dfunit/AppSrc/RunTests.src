@@ -1,0 +1,19 @@
+Use Windows.pkg
+Use cApplication.pkg
+Use DFUnit.pkg
+
+Object oApplication is a cApplication
+End_Object
+
+Object oTestApp is a cDFUnitTestApplication
+    Set psTestFixtureName to "Probe"
+
+    // The published-procedure form.
+    { Published=True }
+    Procedure Top_level_passes
+        Send Assert True "top level"
+    End_Procedure
+
+    // Fixtures nest, and are pulled in from other files.
+    Use Tests\SanityTests.pkg
+End_Object

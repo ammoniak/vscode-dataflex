@@ -1,0 +1,30 @@
+Use DFUnit.pkg
+
+Object oSanityTests is a cTestFixture
+    Set psTestFixtureName to "Sanity"
+
+    Procedure Setup
+    End_Procedure
+
+    // The cTest-object form, named by psTestName.
+    Object oIntegerMath is a cTest
+        Set psTestName to "Integer arithmetic"
+        Procedure Test
+            Send AssertIAreEqual 2 (1 + 1) "1 + 1"
+        End_Procedure
+    End_Object
+
+    // A cTest with no psTestName falls back to the object name.
+    Object oUnnamedTest is a cTest
+        Procedure Test
+            Send Assert True "unnamed"
+        End_Procedure
+    End_Object
+
+    Object oNested is a cTestFixture
+        {Published=True}
+        Procedure If_it_is_divisible_by_4
+            Send Assert True "nested"
+        End_Procedure
+    End_Object
+End_Object

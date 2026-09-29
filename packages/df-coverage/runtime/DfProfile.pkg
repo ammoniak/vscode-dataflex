@@ -1,0 +1,112 @@
+// DfProfile.pkg - per-method timing for instrumented DataFlex source.
+//
+// Used only by an instrumented *copy* of a workspace's source; nothing here belongs in an
+// application. The instrumenter inserts `Send DfProfEnter <id>` at the first executable statement
+// of a procedure or function, and `Send DfProfExit <id>` before every return and before the
+// closing keyword.
+//
+// The same two constraints as DfCoverage.pkg apply, for the same reasons:
+//
+//   * `DfProfEnter` and `DfProfExit` are *global* procedures, so a probe needs no object handle in
+//     scope and the inserted line is a single `Send` wherever it lands.
+//
+//   * State lives in `Global_Variable` arrays, never array properties. DataFlex gets and sets an
+//     array property whole, with copy-on-write, so a property would copy the entire array on every
+//     call -- fatal for something invoked on every method entry.
+//
+// `Use UI` for the same reason too: a global procedure declared before the base runtime is loaded
+// compiles silently and registers nothing, and every later `Send` then fails with
+// "Forward reference not resolved".
+//
+// COST, measured rather than assumed. Over 300,000 calls of a method that does one addition:
+//
+//     bare                          ~0.5 s
+//     probes, counters only         ~1.6 s      (~2 us per probe)
+//     probes, with the clock        ~3.4 s      (~5 us per enter/exit pair)
+//
+// About half of that is the `Send` to a global procedure, which is simply what a DataFlex message
+// costs; the rest is `CurrentDateTime`. A cheaper clock would therefore save at most half.
+//
+// What this means in practice: a method doing real work -- a database read, an HTTP call, building
+// a page -- is measured to well within a percent. A trivial method called hundreds of thousands of
+// times is not, and its own time will be swamped by the measurement. Profile a view or a package,
+// not a whole workspace, and read a hot micro-method's number with suspicion.
+//
+// For scale: the existing coverage instrumentation probes every *basic block* and pays the same
+// ~2 us per probe, so per-method profiling is the cheaper of the two.
+
+Use UI
+
+// Wall-clock milliseconds spent inside each method, keyed by probe id.
+Global_Variable Number[] ganDfProfTotal
+// How many times each method was entered.
+Global_Variable Integer[] gaiDfProfCalls
+// How many times each method was left. Reported, not corrected: a method whose counts differ was
+// left by a path the instrumenter could not see, and its time is not to be trusted.
+Global_Variable Integer[] gaiDfProfExits
+
+// The call stack: probe id and entry time, one entry per active call.
+Global_Variable Integer[] gaiDfProfStack
+Global_Variable DateTime[] gadtDfProfStarted
+Global_Variable Integer giDfProfDepth
+
+/// Records entry to the method with this probe id.
+Procedure DfProfEnter Global Integer iProbe
+    // A DataFlex array grows on an indexed write but errors on an indexed read past its end, so a
+    // counter has to exist before it can be incremented -- the same guard DfCoverage.pkg needs,
+    // and for the same reason: without it the first probe to fire takes the run down through the
+    // error trap before anything is written.
+    If (iProbe < SizeOfArray(gaiDfProfCalls)) Begin
+        Move (gaiDfProfCalls[iProbe] + 1) to gaiDfProfCalls[iProbe]
+    End
+    Else Begin
+        Move 1 to gaiDfProfCalls[iProbe]
+    End
+
+    Move iProbe to gaiDfProfStack[giDfProfDepth]
+    // The entry time is kept as a DateTime and subtracted at exit, so no epoch has to be invented.
+    Move (CurrentDateTime()) to gadtDfProfStarted[giDfProfDepth]
+    Move (giDfProfDepth + 1) to giDfProfDepth
+End_Procedure
+
+/// Records the matching exit, adding the elapsed time to that method's total.
+Procedure DfProfExit Global Integer iProbe
+    Number nElapsed
+    Integer iAt
+
+    If (giDfProfDepth < 1) Begin
+        // Left a method that was never entered. Nothing sensible to record; do not underflow.
+        Procedure_Return
+    End
+
+    Move (giDfProfDepth - 1) to iAt
+
+    // The top of the stack should be this probe. When it is not, the program left some method by
+    // a path with no exit probe -- an early return the instrumenter could not reach, or a longjmp
+    // out of an error trap. Unwind to this probe rather than mis-attributing everything above it.
+    While (iAt >= 0 and gaiDfProfStack[iAt] <> iProbe)
+        Move (iAt - 1) to iAt
+    Loop
+
+    If (iAt < 0) Begin
+        // This probe is not on the stack at all; leave the stack as it was.
+        Procedure_Return
+    End
+
+    Move (SpanTotalMilliseconds(CurrentDateTime() - gadtDfProfStarted[iAt])) to nElapsed
+    If (iProbe < SizeOfArray(ganDfProfTotal)) Begin
+        Move (ganDfProfTotal[iProbe] + nElapsed) to ganDfProfTotal[iProbe]
+    End
+    Else Begin
+        Move nElapsed to ganDfProfTotal[iProbe]
+    End
+
+    If (iProbe < SizeOfArray(gaiDfProfExits)) Begin
+        Move (gaiDfProfExits[iProbe] + 1) to gaiDfProfExits[iProbe]
+    End
+    Else Begin
+        Move 1 to gaiDfProfExits[iProbe]
+    End
+
+    Move iAt to giDfProfDepth
+End_Procedure

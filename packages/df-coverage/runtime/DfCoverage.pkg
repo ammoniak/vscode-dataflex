@@ -1,0 +1,58 @@
+// DfCoverage.pkg - hit counters for instrumented DataFlex source.
+//
+// Used only by an instrumented *copy* of a workspace's source; nothing here belongs in an
+// application. The instrumenter inserts `Send DfCovHit <id>` at the entry of every basic block.
+//
+// This package is included as the very first line of the generated program, ahead of the
+// program's own `Use Windows.pkg`, because code appearing early in a `.src` -- an error trap
+// object, for instance -- is instrumented too and calls DfCovHit before any framework package
+// has been compiled.
+//
+// `Use UI` below is what makes that position work, and it is not optional. Declaring a global
+// procedure before the base runtime is loaded compiles without complaint but registers nothing,
+// so every later `Send DfCovHit` fails with "Forward reference not resolved MSG_DFCOVHIT".
+// Pulling the runtime in here keeps this package self-sufficient, so it does not matter what the
+// instrumented program's own `Use` block happens to start with.
+//
+// Anything needing the *file* runtime -- writing the counts out -- lives in DfCoverageWrite.pkg,
+// which is included later, beside the test application object.
+//
+// Two further choices, both about the hot path:
+//
+//   * `DfCovHit` is a *global* procedure, so a probe needs no object handle in scope. That keeps
+//     the inserted line to a single `Send` no matter where it lands.
+//
+//   * The counters live in a `Global_Variable Integer[]`, not an array property. DataFlex gets
+//     and sets array properties whole, with copy-on-write, so a property would copy the entire
+//     counter array on every single hit - fatal for something called millions of times in a test
+//     run.
+
+Use UI
+
+// Hit counts, indexed by probe id. DataFlex grows an integer array on first indexed write, so no
+// size needs to be declared up front.
+Global_Variable Integer[] gaiDfCovHits
+
+/// Records one execution of the probe with this id.
+Procedure DfCovHit Global Integer iProbe
+    // A DataFlex array grows on an indexed *write* but raises an error on an indexed *read* past
+    // its end, so a counter has to exist before it can be incremented. Without this guard the
+    // very first probe to fire takes down the run through the error trap, which exits the process
+    // before any counts are written -- and the coverage report is simply empty, with the real
+    // cause only visible in the program's error file.
+    //
+    // The array reaches full size once every probe has fired once, so the second branch is taken
+    // at most once per probe no matter how long the run is.
+    If (iProbe < SizeOfArray(gaiDfCovHits)) Begin
+        Move (gaiDfCovHits[iProbe] + 1) to gaiDfCovHits[iProbe]
+    End
+    Else Begin
+        Move 1 to gaiDfCovHits[iProbe]
+    End
+End_Procedure
+
+/// Clears every counter. Useful when one program runs several suites in sequence.
+Procedure DfCovReset Global
+    Integer[] aiEmpty
+    Move aiEmpty to gaiDfCovHits
+End_Procedure

@@ -1,0 +1,36 @@
+Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebForm.pkg
+
+// A trimmed-down web view, shaped like the real ones under
+// C:\DataFlex 26.0 Examples\WebOrder\AppSrc.
+Object oCustomer is a cWebView
+    Set piColumnCount to 10
+    Set psCaption to "Customer Maintenance"
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 10
+
+        Object oCustomerName is a cWebForm
+            Entry_Item Customer.Name
+            Set psLabel to "Name:"
+            Set peLabelAlign to alignRight
+        End_Object
+
+        Object oCustomerCity is a cWebForm
+            Set psLabel to "City:"
+        End_Object
+    End_Object
+
+    Procedure OnLoad
+        String sValue
+        Integer iCount
+        WebGet psValue of oCustomerName to sValue
+        If (sValue = "") Begin
+            WebSet psValue of oCustomerCity to "unknown"
+        End
+        Else Begin
+            Move 0 to iCount
+        End
+    End_Procedure
+End_Object

@@ -1,0 +1,13 @@
+{
+  "name": "@vscode-dataflex/parser",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Lexer, tolerant structure parser and symbol model for the DataFlex language",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "scripts": {
+    "build": "tsc --build"
+  }
+}

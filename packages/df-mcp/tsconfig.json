@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "rootDir": "./src", "outDir": "./out" },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../df-parser" },
+    { "path": "../df-workspace" },
+    { "path": "../df-coverage" },
+    { "path": "../df-langserver" }
+  ]
+}

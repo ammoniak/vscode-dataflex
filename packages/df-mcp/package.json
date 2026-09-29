@@ -1,0 +1,22 @@
+{
+  "name": "@vscode-dataflex/mcp",
+  "version": "0.0.1",
+  "private": true,
+  "description": "MCP server exposing the DataFlex index, analysis, tests and preview to an agent",
+  "license": "MIT",
+  "type": "module",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "bin": { "dataflex-mcp": "./dist/server.mjs" },
+  "scripts": {
+    "build": "node esbuild.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@vscode-dataflex/coverage": "*",
+    "@vscode-dataflex/langserver": "*",
+    "@vscode-dataflex/parser": "*",
+    "@vscode-dataflex/workspace": "*",
+    "zod": "^3.23.8"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/df-parser"
+    },
+    {
+      "path": "packages/df-workspace"
+    },
+    {
+      "path": "packages/df-coverage"
+    },
+    {
+      "path": "packages/df-langserver"
+    },
+    {
+      "path": "packages/df-mcp"
+    },
+    {
+      "path": "packages/df-debug"
+    }
+  ]
+}

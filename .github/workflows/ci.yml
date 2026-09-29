@@ -1,0 +1,38 @@
+# Typecheck and unit tests on every push and pull request.
+#
+# Windows, because that is the only platform DataFlex runs on and the code reflects it: path
+# comparison is case-insensitive throughout, the workspace resolver shells out to `df-cli.exe`, and
+# the Studio is located through the registry. A green run on Linux would prove less than it looks.
+#
+# The runner has no DataFlex installation, and that is fine. The tests that need one skip
+# themselves -- `df-workspace/test/workspace.test.ts` guards on the WebOrder example being present
+# -- and everything else builds its own fixtures in a temp directory. The checks that genuinely
+# cannot run without an install (`preview-check`, `mcp-check`, `debug-host-check`, `corpus-check`)
+# are deliberately not here; see CONTRIBUTING.md.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches `engines.node` in the root package.json.
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test

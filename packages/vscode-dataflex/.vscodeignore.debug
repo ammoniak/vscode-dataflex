@@ -1,0 +1,16 @@
+# The debug build: `.vscodeignore` with `host/**` left in, so `dataflex-debug-host.exe` ships.
+# Used by `npm run package:debug`. vsce's --ignoreFile replaces `.vscodeignore` rather than adding
+# to it, so any change there belongs here too.
+.vscode/**
+src/**
+node_modules/**
+esbuild.mjs
+tsconfig.json
+**/*.map
+**/*.ts
+test/**
+out-test/**
+.vscode-test.mjs
+esbuild.test.mjs
+.vscode-test/**
+.vscodeignore.debug

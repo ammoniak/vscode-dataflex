@@ -1,0 +1,40 @@
+// DfCoverageWrite.pkg - dumps the counters DfCoverage.pkg collected.
+//
+// Split out from DfCoverage.pkg because this half needs the sequential-file runtime
+// (`Seq_New_Channel`), which does not exist at the top of a `.src` where the counter half has to
+// go. This one is included immediately before the test application object, by which point every
+// framework package the program uses has been compiled.
+//
+// The report is written as tab-separated `id<TAB>count` lines rather than JSON: there is nothing
+// to escape, so a stray character in a path or a huge count cannot produce a file the reader
+// chokes on.
+
+/// Writes `id<TAB>count` for every probe that ran at least once.
+Procedure DfCovWrite Global String sFileName
+    Integer iChannel
+    Integer iProbe
+    Integer iMax
+    Integer iCount
+    Boolean bExists
+
+    File_Exist sFileName bExists
+    If bExists Begin
+        EraseFile sFileName
+    End
+
+    Move (Seq_New_Channel()) to iChannel
+    Direct_Output channel iChannel ("BINARY: " + sFileName)
+
+        Move (SizeOfArray(gaiDfCovHits) - 1) to iMax
+        For iProbe from 0 to iMax
+            Move gaiDfCovHits[iProbe] to iCount
+            // Only hits are written; anything absent from the file was never reached, which the
+            // reader already knows from the probe map.
+            If (iCount > 0) Begin
+                Writeln channel iChannel (String(iProbe)) (Character(9)) (String(iCount))
+            End
+        Loop
+
+    Close_Output channel iChannel
+    Send Seq_Release_Channel iChannel
+End_Procedure

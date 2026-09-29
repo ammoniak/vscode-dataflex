@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The debug adapter host.
+
+    The DataFlex debugger engine is an in-process, apartment-threaded COM server that delivers its
+    events through a connection point and posts async evaluation results to an HWND. That needs a
+    thread that owns an STA and runs a message pump for the lifetime of the session, which no Node
+    process has, hence a separate executable rather than code in the extension host.
+
+    Self-contained so the extension carries its own runtime: a DataFlex developer's machine is not
+    guaranteed to have a .NET runtime, and "install .NET first" is a bad first run.
+
+    Not trimmed, and never AOT, which costs about 55 MB and is not negotiable. Trimming was tried
+    and fails in two stages, both silent until the first debug session:
+
+    First it turns built-in COM interop off behind a feature switch, so creating the engine dies
+    with "Built-in COM has been disabled". That one can be switched back on.
+
+    Then it strips the [Guid] attributes off the interop interfaces, so
+    typeof(IDebuggerEngineEvents).GUID computes a hash-based IID instead of the engine's,
+    FindConnectionPoint answers "no such connection point", and no breakpoint ever reports a hit.
+    Rooting this assembly with TrimmerRootAssembly does not bring them back.
+
+    npm run debug-host-check is what caught both; it drives the published binary through a real
+    session rather than trusting that it started.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>dataflex-debug-host</AssemblyName>
+    <RootNamespace>DataFlex.Debug.Host</RootNamespace>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DebugType>none</DebugType>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- The engine is 64-bit only; there is no 32-bit vdfdbg.dll to fall back to. -->
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+</Project>

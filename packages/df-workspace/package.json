@@ -1,0 +1,16 @@
+{
+  "name": "@vscode-dataflex/workspace",
+  "version": "0.0.1",
+  "private": true,
+  "description": "DataFlex workspace (.sws) discovery, df-cli integration and include resolution",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@vscode-dataflex/parser": "*"
+  }
+}

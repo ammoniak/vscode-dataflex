@@ -1,0 +1,48 @@
+{
+  "comments": {
+    "lineComment": "//",
+    "blockComment": ["/*", "*/"]
+  },
+  "brackets": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"]
+  ],
+  "autoClosingPairs": [
+    { "open": "(", "close": ")" },
+    { "open": "[", "close": "]" },
+    { "open": "{", "close": "}" },
+    { "open": "\"", "close": "\"", "notIn": ["string", "comment"] },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+    { "open": "/*", "close": " */", "notIn": ["string"] }
+  ],
+  "surroundingPairs": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"],
+    ["\"", "\""],
+    ["'", "'"]
+  ],
+  "wordPattern": "[A-Za-z_$][A-Za-z0-9_$#]*(\\.[A-Za-z_$][A-Za-z0-9_$#]*)*",
+  "indentationRules": {
+    "increaseIndentPattern": "(?i)^\\s*(Object|Class|Procedure|Function|Struct|Type|Enum_List|Enumeration_List|Repeat|For|While)\\b(?!.*\\b(End_Object|End_Class|End_Procedure|End_Function|End_Struct|End_Type|End_Enum_List|End_Enumeration_List|Loop|Until)\\b).*$|(?i)\\bBegin\\s*(//.*)?$",
+    "decreaseIndentPattern": "(?i)^\\s*(End_Object|End_Class|End_Procedure|End_Function|End_Struct|End_Type|End_Enum_List|End_Enumeration_List|End|Else|Loop|Until|Case\\s+End|Case\\s+Else|#ENDIF|#ELSE|#ENDCOMMAND)\\b"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "(?i)^\\s*(Else|Case\\s+Else)\\s*$",
+      "action": { "indent": "indent" }
+    },
+    {
+      "comment": "Continue a block comment's leading asterisks.",
+      "beforeText": "^\\s*/\\*(?!.*\\*/).*$",
+      "action": { "indent": "none", "appendText": " * " }
+    }
+  ],
+  "folding": {
+    "markers": {
+      "start": "(?i)^\\s*(#IFDEF|#IFNDEF|#IF|#COMMAND)\\b",
+      "end": "(?i)^\\s*(#ENDIF|#ENDCOMMAND)\\b"
+    }
+  }
+}

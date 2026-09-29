@@ -1,0 +1,61 @@
+{
+  "name": "vscode-dataflex-monorepo",
+  "private": true,
+  "version": "0.0.1",
+  "description": "VS Code extension, parser and language server for DataFlex",
+  "license": "MIT",
+  "workspaces": [
+    "packages/df-parser",
+    "packages/df-workspace",
+    "packages/df-coverage",
+    "packages/df-langserver",
+    "packages/df-mcp",
+    "packages/df-debug",
+    "packages/vscode-dataflex"
+  ],
+  "scripts": {
+    "build": "tsc --build && npm run build --workspace packages/df-mcp && npm run typecheck --workspace packages/vscode-dataflex && npm run build --workspace packages/vscode-dataflex",
+    "watch": "tsc --build --watch",
+    "clean": "tsc --build --clean",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "corpus-check": "tsx scripts/corpus-check.ts",
+    "package": "npm run version:bump && npm run build:release --workspace packages/vscode-dataflex && node scripts/package-extension.mjs",
+    "package:debug": "npm run version:bump && npm run debug-host-build && npm run build --workspace packages/vscode-dataflex && node scripts/package-extension.mjs --debug",
+    "version:bump": "npm version patch --no-git-tag-version --workspace packages/vscode-dataflex",
+    "typecheck": "tsc --build && npm run typecheck --workspace packages/vscode-dataflex",
+    "test:integration": "npm run test:integration --workspace packages/vscode-dataflex",
+    "test:all": "npm run test && npm run test:integration",
+    "parse-diagnostics": "tsx scripts/parse-diagnostics.ts",
+    "index-bench": "tsx scripts/index-bench.ts",
+    "analysis-check": "tsx scripts/analysis-check.ts",
+    "deadcode-check": "tsx scripts/deadcode-check.ts",
+    "analysis-bench": "tsx scripts/analysis-bench.ts",
+    "deadcode-concentration": "tsx scripts/deadcode-concentration.ts",
+    "install:vsix": "node scripts/install-vsix.mjs",
+    "deploy": "npm run package && npm run install:vsix",
+    "deploy:debug": "npm run package:debug && node scripts/install-vsix.mjs packages/vscode-dataflex/dataflex-debug.vsix",
+    "coverage-probe": "tsx scripts/coverage-probe.ts",
+    "coverage-run": "tsx scripts/coverage-run.ts",
+    "profile-run": "tsx scripts/profile-run.ts",
+    "docs-link-check": "tsx scripts/docs-link-check.ts",
+    "docs-index": "tsx scripts/fetch-docs-index.ts",
+    "hover-preview": "tsx scripts/hover-preview.ts",
+    "grammar-sync": "tsx scripts/sync-grammar.ts",
+    "debug-host-build": "dotnet publish packages/df-debug-host -c Release -o packages/vscode-dataflex/host",
+    "debug-host-check": "tsx scripts/debug-host-check.ts",
+    "preview-check": "tsx scripts/preview-check.ts",
+    "mcp-check": "tsx scripts/mcp-check.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

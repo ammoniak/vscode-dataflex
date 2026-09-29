@@ -1,0 +1,420 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "DataFlex",
+  "scopeName": "source.dataflex",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#preprocessor"
+    },
+    {
+      "include": "#annotations"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#object-declaration"
+    },
+    {
+      "include": "#class-declaration"
+    },
+    {
+      "include": "#method-declaration"
+    },
+    {
+      "include": "#struct-declaration"
+    },
+    {
+      "include": "#property-declaration"
+    },
+    {
+      "include": "#use-directive"
+    },
+    {
+      "include": "#message-verbs"
+    },
+    {
+      "include": "#block-keywords"
+    },
+    {
+      "include": "#verbs-database"
+    },
+    {
+      "include": "#verbs-message"
+    },
+    {
+      "include": "#verbs-other"
+    },
+    {
+      "include": "#control-keywords"
+    },
+    {
+      "include": "#declaration-keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#operators"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.dataflex",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.double-slash.dataflex",
+          "match": "//.*$"
+        },
+        {
+          "comment": "#REM comments out the rest of the line.",
+          "name": "comment.line.rem.dataflex",
+          "match": "(?i)^\\s*#REM\\b.*$"
+        }
+      ]
+    },
+    "preprocessor": {
+      "comment": "Directives only ever open a line in DataFlex.",
+      "patterns": [
+        {
+          "match": "(?i)^\\s*(#(?:IFDEF|IFNDEF|IFSAME|IFNSAME|ELSEIF|ELSE|ENDIF|IF))\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.conditional.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)^\\s*(#(?:COMMAND|ENDCOMMAND|REPLACE|DEFINE|INCLUDE|CHKARG|ARGCOUNT|ERROR|WARNING))\\b\\s*([A-Za-z_$][A-Za-z0-9_$#]*)?",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.dataflex"
+            },
+            "2": {
+              "name": "entity.name.function.preprocessor.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)^\\s*(#[A-Za-z_]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.dataflex"
+            }
+          }
+        },
+        {
+          "comment": "Macro argument markers inside a #COMMAND body.",
+          "name": "variable.parameter.preprocessor.dataflex",
+          "match": "![0-9]+"
+        }
+      ]
+    },
+    "annotations": {
+      "comment": "{ WebProperty=Client } and friends. These drive completion, so they get their own scope rather than being lumped in with comments.",
+      "name": "meta.annotation.dataflex",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.annotation.begin.dataflex"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.annotation.end.dataflex"
+        }
+      },
+      "patterns": [
+        {
+          "match": "(?i)\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(=)?",
+          "captures": {
+            "1": {
+              "name": "entity.other.attribute-name.dataflex"
+            },
+            "2": {
+              "name": "keyword.operator.assignment.dataflex"
+            }
+          }
+        },
+        {
+          "include": "#strings"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "comment": "Aligned multi-line string (DataFlex 2023+), optionally prefixed: \"\"\"...\"\"\" and @SQL\"\"\"...\"\"\". Quotes inside are content, so only the triple quote terminates it. Must be tried before the single-quote forms.",
+          "name": "string.quoted.triple.dataflex",
+          "begin": "(@[A-Za-z]*)?\"\"\"",
+          "end": "\"\"\"",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.string-prefix.dataflex"
+            }
+          }
+        },
+        {
+          "comment": "Prefixed multi-line string: @\"...\" and @SQL\"...\". Unlike a plain literal these span lines.",
+          "name": "string.quoted.double.multiline.dataflex",
+          "begin": "(@[A-Za-z]*)\"",
+          "end": "\"",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.string-prefix.dataflex"
+            }
+          }
+        },
+        {
+          "comment": "DataFlex has no escape sequences; a literal ends at its matching quote or the line break.",
+          "name": "string.quoted.double.dataflex",
+          "begin": "\"",
+          "end": "\"|(?=$)"
+        },
+        {
+          "name": "string.quoted.single.dataflex",
+          "begin": "'",
+          "end": "'|(?=$)"
+        }
+      ]
+    },
+    "object-declaration": {
+      "match": "(?i)^\\s*(Object)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)(?:\\s+(is)\\s+(an?)\\s+([A-Za-z_$][A-Za-z0-9_$#]*))?",
+      "captures": {
+        "1": {
+          "name": "keyword.other.object.dataflex"
+        },
+        "2": {
+          "name": "entity.name.variable.object.dataflex"
+        },
+        "3": {
+          "name": "keyword.other.dataflex"
+        },
+        "4": {
+          "name": "keyword.other.dataflex"
+        },
+        "5": {
+          "name": "entity.name.type.class.dataflex"
+        }
+      }
+    },
+    "class-declaration": {
+      "match": "(?i)^\\s*(Class)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)(?:\\s+(is)\\s+(an?)\\s+([A-Za-z_$][A-Za-z0-9_$#]*))?",
+      "captures": {
+        "1": {
+          "name": "storage.type.class.dataflex"
+        },
+        "2": {
+          "name": "entity.name.type.class.dataflex"
+        },
+        "3": {
+          "name": "keyword.other.dataflex"
+        },
+        "4": {
+          "name": "keyword.other.dataflex"
+        },
+        "5": {
+          "name": "entity.other.inherited-class.dataflex"
+        }
+      }
+    },
+    "method-declaration": {
+      "patterns": [
+        {
+          "comment": "`Procedure Set <Property>` declares a setter named after the property.",
+          "match": "(?i)^\\s*(Procedure)\\s+(Set)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.function.dataflex"
+            },
+            "2": {
+              "name": "keyword.other.dataflex"
+            },
+            "3": {
+              "name": "entity.name.function.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)^\\s*(Procedure|Function)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)(?:\\s+(for)\\s+([A-Za-z_$][A-Za-z0-9_$#]*))?",
+          "captures": {
+            "1": {
+              "name": "storage.type.function.dataflex"
+            },
+            "2": {
+              "name": "entity.name.function.dataflex"
+            },
+            "3": {
+              "name": "keyword.other.dataflex"
+            },
+            "4": {
+              "name": "entity.name.type.class.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)\\b(Returns)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.dataflex"
+            },
+            "2": {
+              "name": "storage.type.dataflex"
+            }
+          }
+        },
+        {
+          "name": "storage.modifier.dataflex",
+          "match": "(?i)\\bByRef\\b"
+        }
+      ]
+    },
+    "struct-declaration": {
+      "match": "(?i)^\\s*(Struct|Type|Enum_List|Enumeration_List)\\b\\s*([A-Za-z_$][A-Za-z0-9_$#]*)?",
+      "captures": {
+        "1": {
+          "name": "storage.type.struct.dataflex"
+        },
+        "2": {
+          "name": "entity.name.type.struct.dataflex"
+        }
+      }
+    },
+    "property-declaration": {
+      "match": "(?i)^\\s*(Property)\\s+([A-Za-z_$][A-Za-z0-9_$#]*(?:\\[\\])?)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+      "captures": {
+        "1": {
+          "name": "storage.type.property.dataflex"
+        },
+        "2": {
+          "name": "storage.type.dataflex"
+        },
+        "3": {
+          "name": "variable.other.property.dataflex"
+        }
+      }
+    },
+    "use-directive": {
+      "match": "(?i)^\\s*(Use)\\s+(\\S+)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.import.dataflex"
+        },
+        "2": {
+          "name": "string.unquoted.import.dataflex"
+        }
+      }
+    },
+    "message-verbs": {
+      "comment": "WebSet/WebGet are what this extension exists to make usable, so they are scoped distinctly from plain Set/Get. These rules capture the verb AND the identifier after it, which a bare word list cannot, so they stay hand-written and must run before the generated alternations.",
+      "patterns": [
+        {
+          "match": "(?i)\\b(WebSet|WebGet)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.webproperty.dataflex"
+            },
+            "2": {
+              "name": "variable.other.property.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)\\b(Set|Get)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.message.dataflex"
+            },
+            "2": {
+              "name": "variable.other.property.dataflex"
+            }
+          }
+        },
+        {
+          "match": "(?i)\\b(Send|Broadcast|Delegate|Forward)\\s+([A-Za-z_$][A-Za-z0-9_$#]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.message.dataflex"
+            },
+            "2": {
+              "name": "entity.name.function.message.dataflex"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.dataflex",
+          "match": "(?i)\\b(of|to|from|in|as)\\b"
+        }
+      ]
+    },
+    "block-keywords": {
+      "name": "keyword.other.block.dataflex",
+      "match": "(?i)^\\s*(End_Object|End_Class|End_Procedure|End_Function|End_Struct|End_Type|End_Enum_List|End_Enumeration_List)\\b"
+    },
+    "verbs-database": {
+      "comment": "Generated by scripts/sync-grammar.ts from DATABASE_VERBS. Do not edit by hand.",
+      "name": "keyword.other.database.dataflex",
+      "match": "(?i)\\b(Begin_Transaction|End_Transaction|Get_Field_Value|Set_Field_Value|Request_Delete|Request_Clear|Request_Save|Entry_Item|Saverecord|Clearform|Constrain|Field_Map|Attach|Delete|Relate|Reread|Unlock|Clear|Close|Vfind|Find|Lock|Open|Save)\\b"
+    },
+    "verbs-message": {
+      "comment": "Generated by scripts/sync-grammar.ts from MESSAGE_VERBS, less the verbs the structured rules in #message-verbs already colour. Do not edit by hand.",
+      "name": "keyword.other.message.dataflex",
+      "match": "(?i)\\b(Object_Set|Set_Value|Indicate|Calc|Move)\\b"
+    },
+    "verbs-other": {
+      "comment": "Generated by scripts/sync-grammar.ts from OTHER_VERBS. Do not edit by hand.",
+      "name": "keyword.other.dataflex",
+      "match": "(?i)\\b(Valuetreedeserializeparameter|Valuetreeserializeparameter|Set_Dynamic_Argument_Size|Import_Class_Protocol|External_Procedure32|External_Function32|Seq_Release_Channel|Webpublishprocedure|External_Procedure|Register_Procedure|String_Declaration|Webpublishfunction|External_Function|Register_Function|Set_Argument_Size|Compilerwarnings|Is_File_Included|Output_Pagecheck|Cvtlocalization|Get_Environment|Global_Variable|Register_Object|Seq_New_Channel|Set_Environment|Webregisterpath|Activate_View|Callstackdump|Cd_End_Object|Deferred_View|Direct_Output|Get_Attribute|Set_Attribute|Close_Output|Direct_Input|Report_Index|Call_Driver|Close_Input|File_Exist|Getaddress|Page_Break|Put_String|Read_Block|Runprogram|Decrement|Erasefile|Increment|Void_Type|Warningex|Zerotype|Getbuff|Moveint|Movestr|On_Item|Setbuff|Sysdate|Writeln|Append|On_Key|Readln|Showln|Print|Write|Read|Show|Add|Put)\\b"
+    },
+    "control-keywords": {
+      "comment": "Generated by scripts/sync-grammar.ts from CONTROL_VERBS plus the block words. Do not edit by hand.",
+      "name": "keyword.control.dataflex",
+      "match": "(?i)\\b(Procedure_Return|Function_Return|End_For_All|For_All|Repeat|Return|Abort|Begin|Break|Error|Gosub|Until|While|Case|Else|Goto|Loop|End|For|If)\\b"
+    },
+    "declaration-keywords": {
+      "comment": "Generated by scripts/sync-grammar.ts from DECLARATION_WORDS. Do not edit by hand.",
+      "name": "keyword.other.dataflex",
+      "match": "(?i)\\b(End_Composite|End_Enum_List|End_Procedure|End_Function|End_Object|End_Struct|Composite|End_Class|Enum_List|Procedure|Function|Property|Returns|Define|Object|Struct|Class|Field)\\b"
+    },
+    "types": {
+      "comment": "Generated by scripts/sync-grammar.ts from BUILTIN_TYPES. Do not edit by hand.",
+      "name": "storage.type.dataflex",
+      "match": "(?i)\\b(OLE_Handle|OLE_Color|DateTime|TimeSpan|UInteger|Address|Boolean|Decimal|Integer|LongPtr|Pointer|UBigInt|Variant|WString|BigInt|Double|Handle|Number|String|UShort|DWord|Float|RowId|Short|UChar|UWide|Byte|Char|Date|Real|Wide|Word)\\b(\\[\\])?"
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.dataflex",
+          "match": "(?i)\\b(True|False|Self|Desktop|Null|Nothing|Current_Object|This_Object)\\b"
+        },
+        {
+          "comment": "Screaming-snake and C_-prefixed names are the library's constant conventions.",
+          "name": "constant.other.dataflex",
+          "match": "\\bC_[A-Za-z0-9_$#]+\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.dataflex",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "operators": {
+      "name": "keyword.operator.dataflex",
+      "match": "(\\+|-|\\*|/|\\^|=|<>|>=|<=|>|<|&)"
+    }
+  }
+}

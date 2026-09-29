@@ -1,0 +1,18 @@
+# The standard build. `.vscodeignore.debug` is the same list with `host/**` left in, and the two
+# must be kept in step -- vsce's --ignoreFile replaces this file rather than adding to it.
+.vscode/**
+src/**
+node_modules/**
+esbuild.mjs
+tsconfig.json
+**/*.map
+**/*.ts
+test/**
+out-test/**
+.vscode-test.mjs
+esbuild.test.mjs
+.vscode-test/**
+.vscodeignore.debug
+# The debug host is a self-contained .NET publish: 64 MB, which is 29 MB of the 30 MB vsix, for a
+# feature `dataflex.debugging.enabled` leaves off. `npm run package:debug` ships it; this does not.
+host/**

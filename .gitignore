@@ -1,0 +1,23 @@
+node_modules/
+out/
+dist/
+*.tsbuildinfo
+*.vsix
+.vscode-test/
+coverage/
+out-test/
+.vscode-test/
+
+# Keep the launch configuration; F5 depends on it.
+!.vscode/
+
+# Copied from packages/df-coverage/runtime by esbuild.mjs at build time.
+packages/vscode-dataflex/runtime/
+
+# The manifest scripts/package-extension.mjs sets aside while it strips the debug contributions.
+.package-extension-backup.json
+
+# The debug host is built by `npm run debug-host-build` (dotnet publish).
+packages/df-debug-host/bin/
+packages/df-debug-host/obj/
+packages/vscode-dataflex/host/

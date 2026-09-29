@@ -1,0 +1,49 @@
+{
+  "name": "@vscode-dataflex/langserver",
+  "version": "0.0.1",
+  "private": true,
+  "description": "DataFlex language server: indexing, navigation, completion and analysis",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@vscode-dataflex/parser": "*",
+    "@vscode-dataflex/workspace": "*",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "exports": {
+    ".": {
+      "types": "./out/index.d.ts",
+      "default": "./out/index.js"
+    },
+    "./protocol": {
+      "types": "./out/protocol.d.ts",
+      "default": "./out/protocol.js"
+    },
+    "./rules": {
+      "types": "./out/analysis/rules.d.ts",
+      "default": "./out/analysis/rules.js"
+    },
+    "./providers": {
+      "types": "./out/providers/index.d.ts",
+      "default": "./out/providers/index.js"
+    },
+    "./analysis": {
+      "types": "./out/analysis/index.d.ts",
+      "default": "./out/analysis/index.js"
+    },
+    "./preview": {
+      "types": "./out/preview/index.d.ts",
+      "default": "./out/preview/index.js"
+    },
+    "./preview/modes": {
+      "types": "./out/preview/modes.d.ts",
+      "default": "./out/preview/modes.js"
+    }
+  }
+}

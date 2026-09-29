@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension (WebOrder example)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-dataflex",
+        "--folder-uri=file:///C:/DataFlex%2026.0%20Examples/WebOrder"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/vscode-dataflex/out/**/*.js"],
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "name": "Run Extension (open a folder yourself)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-dataflex"],
+      "outFiles": ["${workspaceFolder}/packages/vscode-dataflex/out/**/*.js"],
+      "preLaunchTask": "npm: build"
+    }
+  ]
+}

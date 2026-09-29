@@ -1,0 +1,15 @@
+{
+  "name": "@vscode-dataflex/debug",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Debug adapter for DataFlex: DAP on one side, the debugger engine host on the other",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "scripts": { "build": "tsc --build" },
+  "dependencies": {
+    "@vscode-dataflex/parser": "*",
+    "@vscode-dataflex/langserver": "*"
+  }
+}
