@@ -92,7 +92,7 @@ describe('tool surface', () => {
     ]);
   });
 
-  it('marks every default tool closed-world, and all but reload read-only', async () => {
+  it('marks every default tool closed-world and read-only', async () => {
     const client = await connect(false);
     const tools = (await client.listTools()).tools;
 
@@ -100,14 +100,13 @@ describe('tool surface', () => {
     for (const tool of tools) {
       // Nothing here touches the network.
       expect(tool.annotations?.openWorldHint, tool.name).toBe(false);
+      // Reload included: it changes this process's state and nothing on disk, and marking it a
+      // write would hide it from an agent in plan mode, which is when a wrong workspace is noticed.
+      expect(tool.annotations?.readOnlyHint, tool.name).toBe(true);
       if (tool.name === 'dataflex_reload') {
-        // It changes this process's state and nothing on disk.
-        expect(tool.annotations?.readOnlyHint).toBe(false);
         expect(tool.annotations?.destructiveHint).toBe(false);
         expect(tool.annotations?.idempotentHint).toBe(true);
-        continue;
       }
-      expect(tool.annotations?.readOnlyHint, tool.name).toBe(true);
     }
   });
 
